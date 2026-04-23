@@ -68,12 +68,16 @@ export async function POST(request: NextRequest) {
     const submitterName = data.reference_name || 'Unknown'
     const submitterRel  = data.relationship_to_party ? ` (${data.relationship_to_party})` : ''
 
-    await transporter.sendMail({
-      from: `"${submitterName}${submitterRel}" <${process.env.EMAIL_FROM}>`,
-      to: 'abapphil@gmail.com',
-      subject: `Custody Reference – ${submitterName} re: ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
-      html: buildEmail(data),
-    })
+    try {
+      await transporter.sendMail({
+        from: `"${submitterName}${submitterRel}" <${process.env.EMAIL_FROM}>`,
+        to: process.env.EMAIL_TO ?? 'abapphil@gmail.com',
+        subject: `Custody Reference – ${submitterName} re: ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
+        html: buildEmail(data),
+      })
+    } catch (emailErr) {
+      console.error('Email send error (non-fatal):', emailErr)
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {

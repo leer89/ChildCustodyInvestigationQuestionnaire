@@ -102,7 +102,7 @@ export default function CustodyForm({ formData, setFormData }: Props) {
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Submitted Successfully</h2>
           <p className="text-gray-500 text-sm">
-            Your questionnaire has been submitted to the Office of the Friend of the Court.
+            Your questionnaire has been submitted to the pHilLiP mAuREEcE sCatEs. Josh is gay.
           </p>
         </div>
       </div>

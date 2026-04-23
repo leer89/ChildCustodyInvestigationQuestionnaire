@@ -14,15 +14,12 @@ const S = StyleSheet.create({
 
   // ── Title ─────────────────────────────────────────────────────────────────
   titleWrap: { alignItems: 'center', marginBottom: 10 },
-  title: { fontSize: 13, fontFamily: 'Helvetica-Bold', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
-  titleSub: { fontSize: 12, fontFamily: 'Helvetica-Bold', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.8 },
+  title: { fontSize: 10.5, fontFamily: 'Helvetica-Bold', textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.5 },
 
-  // ── Case row ──────────────────────────────────────────────────────────────
-  caseRow: { flexDirection: 'row', marginBottom: 6 },
-  caseLeft: { flex: 1, marginRight: 14 },
-  caseRight: { flex: 2 },
-  caseLabel: { fontSize: 7, color: '#444', marginBottom: 1 },
-  caseLine: { borderBottom: 1, borderBottomColor: '#000', minHeight: 14, paddingBottom: 1, fontSize: 9 },
+  // ── Case stacked rows ─────────────────────────────────────────────────────
+  caseStackRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 3 },
+  caseInlineLabel: { fontSize: 9, fontFamily: 'Helvetica', marginRight: 4, whiteSpace: 'nowrap' },
+  caseLine: { flex: 1, borderBottom: 1, borderBottomColor: '#000', minHeight: 14, paddingBottom: 1, fontSize: 9 },
 
   // ── Instructions ──────────────────────────────────────────────────────────
   instrBox: { border: 1, borderColor: '#000', padding: 7, marginBottom: 10, fontSize: 8, lineHeight: 1.45 },
@@ -30,9 +27,13 @@ const S = StyleSheet.create({
 
   // ── Field helpers ─────────────────────────────────────────────────────────
   fieldWrap: { marginBottom: 7 },
-  fieldLabel: { fontSize: 7.5, marginBottom: 1 },
-  fieldLine: { borderBottom: 1, borderBottomColor: '#000', minHeight: 15, paddingBottom: 2, fontSize: 9 },
-  fieldBox: { border: 1, borderColor: '#000', minHeight: 55, padding: 4, fontSize: 9 },
+  fieldLabel: { fontSize: 8, marginBottom: 1 },
+  // inline row: label left, value+underline right on same line
+  fieldRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 },
+  fieldRowLabel: { fontSize: 8, marginRight: 4 },
+  fieldLine: { borderBottom: 1, borderBottomColor: '#000', paddingBottom: 1 },
+  fieldValue: { fontSize: 11 },
+  fieldBox: { border: 1, borderColor: '#000', minHeight: 55, padding: 4, fontSize: 11 },
   twoCol: { flexDirection: 'row' },
   col1: { flex: 1, marginRight: 12 },
   col2: { flex: 1 },
@@ -47,18 +48,14 @@ const S = StyleSheet.create({
   ynRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
   ynLabel: { flex: 1, fontSize: 8.5 },
   ynOptions: { flexDirection: 'row', alignItems: 'center' },
-  ynBox: { width: 9, height: 9, border: 1, borderColor: '#000', marginRight: 2 },
-  ynBoxFilled: { width: 9, height: 9, border: 1, borderColor: '#000', backgroundColor: '#000', marginRight: 2 },
-  ynText: { fontSize: 8, marginRight: 10 },
+  ynBox: { width: 12, height: 12, border: 1, borderColor: '#000', marginRight: 2, paddingLeft: 1 },
+  ynCheck: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: '#000', lineHeight: 1 },
+  ynText: { fontSize: 8, marginRight: 12 },
 
   // ── Signature ─────────────────────────────────────────────────────────────
-  sigRow: { flexDirection: 'row', marginTop: 16, alignItems: 'flex-end' },
-  sigLeft: { flex: 3, marginRight: 20 },
-  sigRight: { flex: 1 },
   sigLabel: { fontSize: 7, color: '#444', marginBottom: 2 },
   sigLine: { borderBottom: 1, borderBottomColor: '#000', minHeight: 44 },
   sigImg: { height: 40, maxWidth: 220, objectFit: 'contain' },
-  sigDateLine: { borderBottom: 1, borderBottomColor: '#000', minHeight: 14, fontSize: 9, paddingBottom: 1 },
 
   // ── Page number ───────────────────────────────────────────────────────────
   pageNum: { textAlign: 'center', fontSize: 8, color: '#555', marginTop: 14 },
@@ -71,10 +68,10 @@ const S = StyleSheet.create({
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <View style={S.fieldWrap}>
-      <Text style={S.fieldLabel}>{label}</Text>
-      <View style={S.fieldLine}>
-        {value ? <Text>{value}</Text> : null}
+    <View style={S.fieldRow}>
+      <Text style={S.fieldRowLabel}>{label}</Text>
+      <View style={[S.fieldLine, { flex: 1 }]}>
+        {value ? <Text style={S.fieldValue}>{value}</Text> : null}
       </View>
     </View>
   )
@@ -82,7 +79,7 @@ function Field({ label, value }: { label: string; value: string }) {
 
 function FieldBox({ label, value }: { label: string; value: string }) {
   return (
-    <View style={S.fieldWrap}>
+    <View style={S.fieldWrap} minPresenceAhead={60}>
       {label ? <Text style={S.fieldLabel}>{label}</Text> : null}
       <View style={S.fieldBox}>
         {value ? <Text>{value}</Text> : null}
@@ -96,9 +93,13 @@ function YesNo({ label, value }: { label: string; value: boolean | null }) {
     <View style={S.ynRow}>
       <Text style={S.ynLabel}>{label}</Text>
       <View style={S.ynOptions}>
-        <View style={value === true ? S.ynBoxFilled : S.ynBox} />
+        <View style={S.ynBox}>
+          {value === true ? <Text style={S.ynCheck}>X</Text> : null}
+        </View>
         <Text style={S.ynText}>Yes</Text>
-        <View style={value === false ? S.ynBoxFilled : S.ynBox} />
+        <View style={S.ynBox}>
+          {value === false ? <Text style={S.ynCheck}>X</Text> : null}
+        </View>
         <Text style={S.ynText}>No</Text>
       </View>
     </View>
@@ -118,24 +119,21 @@ export default function CustodyPDFDocument({ data }: { data: FormData }) {
 
         {/* Title */}
         <View style={S.titleWrap}>
-          <Text style={S.title}>Child Custody Investigations</Text>
-          <Text style={S.titleSub}>Reference Questionnaire</Text>
+          <Text style={S.title}>Child Custody Investigations Reference Questionnaire</Text>
         </View>
 
-        {/* Case Number / Party Name */}
-        <View style={S.caseRow}>
-          <View style={S.caseLeft}>
-            <Text style={S.caseLabel}>Case Number</Text>
-            <View style={S.caseLine}>
-              <Text>{data.case_number}</Text>
-            </View>
-          </View>
-          <View style={S.caseRight}>
-            <Text style={S.caseLabel}>Name of Party for Whom You Are Completing the Questionnaire</Text>
-            <View style={S.caseLine}>
-              <Text>{data.party_name}</Text>
-            </View>
-          </View>
+        {/* Case / Number / Party Name – stacked to match original */}
+        <View style={[S.caseStackRow, { marginBottom: 2 }]}>
+          <Text style={S.caseInlineLabel}>Case</Text>
+          <View style={S.caseLine}><Text>{''}</Text></View>
+        </View>
+        <View style={[S.caseStackRow, { marginBottom: 2 }]}>
+          <Text style={S.caseInlineLabel}>Number</Text>
+          <View style={S.caseLine}><Text>{data.case_number}</Text></View>
+        </View>
+        <View style={[S.caseStackRow, { marginBottom: 8 }]}>
+          <Text style={S.caseInlineLabel}>Name of party for whom you are completing the questionnaire</Text>
+          <View style={S.caseLine}><Text style={{ fontSize: 14 }}>{data.party_name}</Text></View>
         </View>
 
         {/* Instructions */}
@@ -155,41 +153,37 @@ export default function CustodyPDFDocument({ data }: { data: FormData }) {
         <Field label="Your Name" value={data.reference_name} />
         <Field label="Your Address" value={data.reference_address} />
 
-        <View style={[S.threeCol, { marginBottom: 7 }]}>
-          <View style={S.colT}>
-            <Text style={S.fieldLabel}>Phone Number: Home</Text>
-            <View style={S.fieldLine}><Text>{data.phone_home}</Text></View>
+        <View style={[S.threeCol, { marginBottom: 6 }]}>
+          <View style={[S.colT, { flexDirection: 'row', alignItems: 'flex-end' }]}>
+            <Text style={S.fieldRowLabel}>Phone Number: Home</Text>
+            <View style={[S.fieldLine, { flex: 1 }]}><Text style={S.fieldValue}>{data.phone_home}</Text></View>
           </View>
-          <View style={S.colT}>
-            <Text style={S.fieldLabel}>Work</Text>
-            <View style={S.fieldLine}><Text>{data.phone_work}</Text></View>
+          <View style={[S.colT, { flexDirection: 'row', alignItems: 'flex-end' }]}>
+            <Text style={S.fieldRowLabel}>Work</Text>
+            <View style={[S.fieldLine, { flex: 1 }]}><Text style={S.fieldValue}>{data.phone_work}</Text></View>
           </View>
-          <View style={S.colTL}>
-            <Text style={S.fieldLabel}>Ext.</Text>
-            <View style={S.fieldLine}><Text>{data.phone_ext}</Text></View>
+          <View style={[S.colTL, { flexDirection: 'row', alignItems: 'flex-end' }]}>
+            <Text style={S.fieldRowLabel}>Ext.</Text>
+            <View style={[S.fieldLine, { flex: 1 }]}><Text style={S.fieldValue}>{data.phone_ext}</Text></View>
           </View>
         </View>
 
         <Field label="Your relationship to the party above (friend, employer, etc.)" value={data.relationship_to_party} />
 
-        <View style={S.twoCol}>
-          <View style={S.col1}>
-            <Field label="How long have you known the party above?" value={data.known_party_duration} />
-          </View>
-          <View style={S.col2}>
-            <Field label="Date last seen" value={data.party_last_seen} />
-          </View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
+          <Text style={S.fieldRowLabel}>How long have you known the party above?</Text>
+          <View style={[S.fieldLine, { width: 70 }]}><Text style={S.fieldValue}>{data.known_party_duration}</Text></View>
+          <Text style={[S.fieldRowLabel, { marginLeft: 10 }]}>Date last seen</Text>
+          <View style={[S.fieldLine, { flex: 1 }]}><Text style={S.fieldValue}>{data.party_last_seen}</Text></View>
         </View>
 
         <Field label="How often did you see him/her?" value={data.party_see_frequency} />
 
-        <View style={S.twoCol}>
-          <View style={S.col1}>
-            <Field label="How long have you known the children in this case?" value={data.known_children_duration} />
-          </View>
-          <View style={S.col2}>
-            <Field label="Date last seen" value={data.children_last_seen} />
-          </View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 6 }}>
+          <Text style={S.fieldRowLabel}>How long have you known the children in this case?</Text>
+          <View style={[S.fieldLine, { width: 70 }]}><Text style={S.fieldValue}>{data.known_children_duration}</Text></View>
+          <Text style={[S.fieldRowLabel, { marginLeft: 10 }]}>Date last seen</Text>
+          <View style={[S.fieldLine, { flex: 1 }]}><Text style={S.fieldValue}>{data.children_last_seen}</Text></View>
         </View>
 
         <Field label="How often did you see them?" value={data.children_see_frequency} />
@@ -198,15 +192,19 @@ export default function CustodyPDFDocument({ data }: { data: FormData }) {
         <View style={[S.ynRow, { marginBottom: 0 }]}>
           <Text style={[S.ynLabel, { fontFamily: 'Helvetica' }]}>Do you know the other party?</Text>
           <View style={S.ynOptions}>
-            <View style={data.knows_other_party === true ? S.ynBoxFilled : S.ynBox} />
+            <View style={S.ynBox}>
+              {data.knows_other_party === true ? <Text style={S.ynCheck}>X</Text> : null}
+            </View>
             <Text style={S.ynText}>Yes</Text>
-            <View style={data.knows_other_party === false ? S.ynBoxFilled : S.ynBox} />
+            <View style={S.ynBox}>
+              {data.knows_other_party === false ? <Text style={S.ynCheck}>X</Text> : null}
+            </View>
             <Text style={[S.ynText, { marginRight: 16 }]}>No</Text>
             <Text style={{ fontSize: 8 }}>If yes, for how long? </Text>
           </View>
         </View>
         <View style={[S.fieldLine, { marginBottom: 7 }]}>
-          <Text>{data.other_party_duration}</Text>
+          <Text style={S.fieldValue}>{data.other_party_duration}</Text>
         </View>
 
         <FieldBox label="Comments:" value={data.comments} />
@@ -271,19 +269,20 @@ export default function CustodyPDFDocument({ data }: { data: FormData }) {
         <FieldBox label="" value={data.additional_comments} />
 
         {/* ── Signature + Date ── */}
-        <View style={S.sigRow}>
-          <View style={S.sigLeft}>
+        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+          <View style={{ flex: 1 }} />
+          <View style={{ flex: 1.4 }}>
             <Text style={S.sigLabel}>Reference Signature</Text>
             {data.signature_data ? (
               <Image src={data.signature_data} style={S.sigImg} />
             ) : (
               <View style={S.sigLine} />
             )}
-          </View>
-          <View style={S.sigRight}>
-            <Text style={S.sigLabel}>Date</Text>
-            <View style={S.sigDateLine}>
-              <Text>{data.submission_date}</Text>
+            <View style={{ flexDirection: 'row', marginTop: 8, alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 8.5, marginRight: 4 }}>Date:</Text>
+              <View style={{ flex: 1, borderBottom: 1, borderBottomColor: '#000', paddingBottom: 1 }}>
+                <Text style={{ fontSize: 9 }}>{data.submission_date}</Text>
+              </View>
             </View>
           </View>
         </View>
