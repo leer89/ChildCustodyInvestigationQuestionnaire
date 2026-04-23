@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS form_submissions (
   additional_comments       TEXT,
 
   -- Signature
-  reference_signature       TEXT,
+  signature_data            TEXT,  -- base64 PNG from canvas pad
   submission_date           TEXT
 );
 
@@ -63,3 +63,6 @@ CREATE TABLE IF NOT EXISTS form_submissions (
 -- RLS is bypassed by the service role key, so no policy needed for writes.
 -- Optionally enable RLS to block direct public access:
 ALTER TABLE form_submissions ENABLE ROW LEVEL SECURITY;
+
+-- If you already ran the original schema, run this to add the new column:
+-- ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS signature_data TEXT;

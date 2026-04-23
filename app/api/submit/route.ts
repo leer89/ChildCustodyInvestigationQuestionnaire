@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         party_unfit: data.party_unfit,
         unfit_explanation: data.unfit_explanation || null,
         additional_comments: data.additional_comments || null,
-        reference_signature: data.reference_signature || null,
+        signature_data: data.signature_data || null,
         submission_date: data.submission_date || null,
       },
     ])
@@ -199,7 +199,11 @@ function buildEmail(d: Record<string, any>): string {
     ${section('F) Additional Comments', block('', d.additional_comments))}
 
     <div style="margin-top:24px;padding-top:16px;border-top:1px solid #dde3ec;font-size:13px;color:#6b7280;">
-      <strong style="color:#1f2937;">Reference Signature:</strong> ${d.reference_signature || '—'}<br>
+      <strong style="color:#1f2937;">Reference Signature:</strong><br>
+      ${d.signature_data
+        ? `<img src="${d.signature_data}" style="height:50px;max-width:240px;display:block;margin:6px 0;border-bottom:1px solid #ccc;" alt="Signature" />`
+        : '<em style="color:#9ca3af;">No signature provided</em>'
+      }<br>
       <strong style="color:#1f2937;">Date:</strong> ${d.submission_date || '—'}
     </div>
 
