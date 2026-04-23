@@ -56,17 +56,22 @@ export async function POST(request: NextRequest) {
 
     // ── 2. Send email ────────────────────────────────────────────────────────
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.EMAIL_SMTP_HOST,   // e.g. mail.makotechs.com
+      port: 465,
+      secure: true,
       auth: {
-        user: process.env.EMAIL_FROM,
-        pass: process.env.EMAIL_APP_PASSWORD,
+        user: process.env.EMAIL_FROM,      // nosender@makotechs.com
+        pass: process.env.EMAIL_PASSWORD,
       },
     })
 
+    const submitterName = data.reference_name || 'Unknown'
+    const submitterRel  = data.relationship_to_party ? ` (${data.relationship_to_party})` : ''
+
     await transporter.sendMail({
-      from: `"Child Custody Form" <${process.env.EMAIL_FROM}>`,
+      from: `"${submitterName}${submitterRel}" <${process.env.EMAIL_FROM}>`,
       to: 'abapphil@gmail.com',
-      subject: `Custody Questionnaire – ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
+      subject: `Custody Reference – ${submitterName} re: ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
       html: buildEmail(data),
     })
 
@@ -118,6 +123,25 @@ function buildEmail(d: Record<string, any>): string {
     </h1>
     <p style="margin:6px 0 0;font-size:13px;opacity:0.85;">
       Submitted ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+    </p>
+  </div>
+
+  <!-- Submitter banner -->
+  <div style="background:#dbeafe;border:1px solid #93c5fd;border-top:none;padding:14px 24px;">
+    <p style="margin:0;font-size:14px;color:#1e3a8a;">
+      <strong>Submitted by:</strong> ${d.reference_name || '—'}
+      ${d.relationship_to_party ? `&nbsp;·&nbsp;<em>${d.relationship_to_party}</em>` : ''}
+    </p>
+    ${d.reference_address ? `<p style="margin:4px 0 0;font-size:13px;color:#374151;">${d.reference_address}</p>` : ''}
+    ${(d.phone_home || d.phone_work) ? `
+    <p style="margin:4px 0 0;font-size:13px;color:#374151;">
+      ${d.phone_home ? `Home: ${d.phone_home}` : ''}
+      ${d.phone_home && d.phone_work ? '&nbsp;·&nbsp;' : ''}
+      ${d.phone_work ? `Work: ${d.phone_work}${d.phone_ext ? ' x' + d.phone_ext : ''}` : ''}
+    </p>` : ''}
+    <p style="margin:6px 0 0;font-size:13px;color:#1e3a8a;">
+      <strong>Party:</strong> ${d.party_name || '—'}
+      &nbsp;·&nbsp;<strong>Case #:</strong> ${d.case_number || 'N/A'}
     </p>
   </div>
 
