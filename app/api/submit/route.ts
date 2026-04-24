@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         subject: `Custody Reference – ${submitterName} re: ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
         html: buildEmail(data),
         attachments: [{
-          filename: `Custody-Reference-${submitterName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          filename: `${submitterName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-child-custody-investigations-reference-questionnaire-${Date.now()}.pdf`,
           content: pdfBuffer,
           contentType: 'application/pdf',
         }],
