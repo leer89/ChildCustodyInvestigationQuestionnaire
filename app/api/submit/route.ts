@@ -59,8 +59,9 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 2. Generate PDF ──────────────────────────────────────────────────────
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pdfBuffer = await renderToBuffer(
-      React.createElement(CustodyPDFDocument, { data: data as FormData })
+      React.createElement(CustodyPDFDocument, { data: data as FormData }) as any
     )
 
     // ── 3. Send email ────────────────────────────────────────────────────────
