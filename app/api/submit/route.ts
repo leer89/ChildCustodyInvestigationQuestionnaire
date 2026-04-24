@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { createClient } from '@supabase/supabase-js'
+import React from 'react'
+import { renderToBuffer } from '@react-pdf/renderer'
+import CustodyPDFDocument from '@/components/CustodyPDFDocument'
+import type { FormData } from '@/lib/types'
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,7 +58,12 @@ export async function POST(request: NextRequest) {
       console.error('Supabase insert error:', dbError)
     }
 
-    // ── 2. Send email ────────────────────────────────────────────────────────
+    // ── 2. Generate PDF ──────────────────────────────────────────────────────
+    const pdfBuffer = await renderToBuffer(
+      React.createElement(CustodyPDFDocument, { data: data as FormData })
+    )
+
+    // ── 3. Send email ────────────────────────────────────────────────────────
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SMTP_HOST,   // e.g. mail.makotechs.com
       port: 465,
@@ -74,6 +83,11 @@ export async function POST(request: NextRequest) {
         to: process.env.EMAIL_TO ?? 'abapphil@gmail.com',
         subject: `Custody Reference – ${submitterName} re: ${data.party_name || 'Unknown Party'} | Case #${data.case_number || 'N/A'}`,
         html: buildEmail(data),
+        attachments: [{
+          filename: `Custody-Reference-${submitterName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        }],
       })
     } catch (emailErr) {
       console.error('Email send error (non-fatal):', emailErr)
